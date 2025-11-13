@@ -118,7 +118,6 @@
 
 ## 文件输出
 - **清洗脚本**: `comprehensive_data_cleaning.py` - 综合版数据清洗
-- **验证脚本**: `check_stay_values.py` - Stay列值检查
 - **清洗后数据**: `healthcare/train_data_comprehensive_cleaned.csv` - 最终清洗结果
 - **总结报告**: `data_cleaning_summary.md` - 详细的数据清洗总结报告
 
