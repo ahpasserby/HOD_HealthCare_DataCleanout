@@ -82,22 +82,28 @@ def comprehensive_clean_healthcare_data():
     # 新增：病人城市与医院城市关联特征
     print("\n=== 新增城市关联特征 ===")
     
-    # 计算本城就医的病人数
-    same_city_patients = df_cleaned[df_cleaned['City_Code_Patient'] == df_cleaned['City_Code_Hospital']]
-    
     # 计算每个城市的病人总数
     city_patient_counts = df_cleaned.groupby('City_Code_Patient').size()
     
-    # 计算每个城市的本城就医病人数
-    same_city_counts = same_city_patients.groupby('City_Code_Patient').size()
+    # 计算每个城市中在本城医院就医的病人数
+    # 对于城市a，计算在a城医院就医的a城病人数
+    same_city_treatment_counts = {}
+    for city_code in city_patient_counts.index:
+        # 找到病人城市为a且医院城市也为a的记录
+        same_city_count = len(df_cleaned[
+            (df_cleaned['City_Code_Patient'] == city_code) & 
+            (df_cleaned['City_Code_Hospital'] == city_code)
+        ])
+        same_city_treatment_counts[city_code] = same_city_count
     
     # 计算本城病人流失率
     city_loss_rate = {}
     for city_code in city_patient_counts.index:
         total_patients = city_patient_counts[city_code]
-        same_city_count = same_city_counts.get(city_code, 0)
-        loss_rate = 1 - (same_city_count / total_patients) if total_patients > 0 else 0
+        same_city_treatment_count = same_city_treatment_counts[city_code]
+        loss_rate = 1 - (same_city_treatment_count / total_patients) if total_patients > 0 else 0
         city_loss_rate[city_code] = loss_rate
+        print(f"城市{city_code}: 总病人数={total_patients}, 本城就医数={same_city_treatment_count}, 流失率={loss_rate:.4f}")
     
     # 添加本城病人流失率特征
     df_cleaned['City_Patient_Loss_Rate'] = df_cleaned['City_Code_Patient'].map(city_loss_rate)
